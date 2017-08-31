@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<openerp>
+    <data>
+        <record id="config_payroll_form" model="ir.ui.view">
+            <field name="name">Configuracion Nómina</field>
+            <field name="model">hr.config.payroll</field>
+            <field name="type">form</field>
+            <field name="arch" type="xml">
+                <form>
+                    <sheet>
+                        <group col='6'>
+                            <field name="name" col="6"/>
+                            <field name="tipo"/>
+                            <field name="valor"/>
+                         </group>
+                         <group col="6">   
+                            <legend class="texto_legend" colspan="6">Vigencia</legend>
+                            <field name="fecha_inicial" string="Desde" col="3"/>
+                            <field name="fecha_final" string="Hasta" col="3"/>
+                        </group>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+        <record id="config_payroll_tree_view" model="ir.ui.view">
+            <field name="name">Configuracion Nómina</field>
+            <field name="model">hr.config.payroll</field>
+            <field name="type">tree</field>
+            <field name="arch" type="xml">
+                <tree string="Configuracion Nómina" >
+                     <field name="name"/>
+                     <field name="valor"/> 
+                     <field name="fecha_inicial" string="Desde"/>
+                     <field name="fecha_final" string="Hasta"/>                                 
+                </tree>
+            </field>
+        </record>
+        <record id="action_config_payroll" model="ir.actions.act_window">
+            <field name="name">Configuracion Nómina</field>
+            <field name="res_model">hr.config.payroll</field>
+            <field name="view_type">form</field>
+            <field name="view_mode">tree,form</field>            
+        </record>
+        <menuitem name="Configuración Nomina" 
+                  id="config_payroll"
+                  parent="hr_payroll.menu_hr_payroll_root" 
+                  action="action_config_payroll"
+                  sequence="9" />
+    </data>
+</openerp>

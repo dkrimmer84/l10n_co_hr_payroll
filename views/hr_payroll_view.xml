@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<openerp>
+    <data>
+        <record id="hr_employee_form__l10n_co_view_for" model="ir.ui.view">
+            <field name="name">Datos de Empleado - Colombia</field>
+            <field name="model">hr.employee</field>
+            <field name="inherit_id" ref="hr_contract.hr_hr_employee_view_form2"/>
+            <field name="priority">30</field>
+            <field name="arch" type="xml">
+            <data>
+               <xpath expr="//group[@name='active_group']" position="before">
+                 <group string="Afiliaciones">
+                    <field name="eps_id" help="EPS a la que se encuentra afiliado el empleado"/>
+                    <field name="fp_id" help="Fondo de Pensiones al que se encuentra afiliado el empleado"/>
+                    <field name="fc_id" help="Fondo de Cesantías al que se encuentra afiliado el empleado"/>
+                 </group>
+               </xpath>
+            </data>
+            </field>
+        </record>
+    </data>
+</openerp>

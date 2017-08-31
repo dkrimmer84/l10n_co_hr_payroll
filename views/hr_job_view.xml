@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<openerp>
+    <data>
+        <record id="inherith_employee_category" model="ir.ui.view">
+            <field name="name">hr.job</field>
+            <field name="model">hr.job</field>
+            <field name="inherit_id" ref="hr.view_hr_job_form" />
+            <field name="type">form</field>
+            <field eval="2" name="priority"/>
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='description']" position="after">
+                    <group><field name="riesgos_profesionales"/></group>
+                </xpath>
+            </field>
+        </record>
+    </data>
+</openerp>
