@@ -189,7 +189,7 @@ class hr_payslip(osv.osv):
 
             move.update({'line_ids': line_ids})
             move_id = move_pool.create(cr, uid, move, context=context)
-            self.write(cr, uid, [slip.id], {'move_id': move_id, 'date' : date}, context=context)
+            self.write(cr, uid, [slip.id], {'move_id': move_id, 'date' : date, 'state': 'done'}, context=context)
             move_pool.post(cr, uid, [move_id], context=context)
         return True
 
