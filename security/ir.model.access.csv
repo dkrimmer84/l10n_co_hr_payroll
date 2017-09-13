@@ -1,0 +1,8 @@
+"id","name","model_id:id","group_id:id","perm_read","perm_write","perm_create","perm_unlink"
+"id_hr_config_payroll","hr.config.payroll","model_hr_config_payroll","base.group_hr_manager","1","1","1","1"
+"id_hr_nivel_riesgos","hr.nivel.riesgos","model_hr_nivel_riesgos","base.group_hr_manager","1","1","1","1"
+"id_hr_payslip","hr.payslip","model_hr_payslip","base.group_hr_manager","1","1","1","1"
+"id_hr_salary_rule","hr.salary.rule","model_hr_salary_rule","base.group_hr_manager","1","1","1","1"
+"id_hr_job","hr.job","model_hr_job","base.group_hr_manager","1","1","1","1"
+"id_hr_payslip_line","hr.payslip.line","hr_payroll.model_hr_payslip_line","base.group_hr_manager","1","1","1","1"
+

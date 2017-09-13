@@ -23,4 +23,4 @@ class hr_nivel_riesgos(models.Model):
     _name = 'hr.nivel.riesgos' 
 
     name = fields.Char('Nivel de Riesgo')
-    tarifa = fields.Float('Tarifa')   
+    tarifa = fields.Float('Tarifa', digits=(3,4))   

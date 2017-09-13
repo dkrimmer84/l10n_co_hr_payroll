@@ -20,7 +20,8 @@ legislación vigente en Colombia.
                 'views/hr_payroll_view.xml',
                 'views/hr_payroll_account_view.xml',
                 'views/hr_job_view.xml',
-                'views/hr_config_payroll.xml'
+                'views/hr_config_payroll.xml',
+                'security/ir.model.access.csv'
               ],
     'installable': True,
     'auto_install': False,
