@@ -9,8 +9,10 @@
             <field name="arch" type="xml">
             <data>
                <xpath expr="//field[@name='struct_id']" position="after">
-                    <field name="salario_minimo" readonly="1"/>
-                    <field name="aux_transporte" readonly="1"/>         
+                    <field name="salario_minimo" invisible="1"/>
+                    <field name="aux_transporte" invisible="1"/>  
+                    <field name="salario_minimo_r" />
+                    <field name="aux_transporte_r" />         
                </xpath>
                <xpath expr="//field[@name='struct_id']" position="before">
                     <field name="base_sal_min"/>      

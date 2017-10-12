@@ -13,7 +13,9 @@ class hr_employee_category(models.Model):
     _inherit = 'hr.contract' 
     
     salario_minimo = fields.Float('Salario Minimo Vigente')
-    aux_transporte = fields.Float('Auxilio de Transporte')     
+    aux_transporte = fields.Float('Auxilio de Transporte')
+    salario_minimo_r = fields.Float('Salario Minimo Vigente', related = 'salario_minimo', readonly= True)
+    aux_transporte_r = fields.Float('Auxilio de Transporte', related = 'aux_transporte', readonly= True)      
     base_sal_min = fields.Boolean('Base Salario Minimo')
     
 
@@ -56,7 +58,8 @@ class hr_employee_category(models.Model):
                 self.wage = self.salario_minimo
             else:
                 self.wage = _config[2]
-                self.salario_minimo = _config[2]
+                self.salario_minimo= _config[2]
+
         
 
 
