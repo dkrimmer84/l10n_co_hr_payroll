@@ -206,7 +206,7 @@ class hr_payslip(osv.osv):
             day = datetime_day.strftime("%Y-%m-%d")
             holiday_ids = self.pool.get('hr.holidays').search(cr, uid, [('state','=','validate'),('employee_id','=',employee_id),('type','=','remove'),('date_from','<=',day),('date_to','>=',day)])
             if holiday_ids:
-                res = self.pool.get('hr.holidays').browse(cr, uid, holiday_ids, context=context)[0].holiday_status_id.name
+                res = self.pool.get('hr.holidays').browse(cr, uid, holiday_ids, context=context)[0]
             return res
 
         res = []
@@ -225,7 +225,6 @@ class hr_payslip(osv.osv):
             leaves = {}
             day_from = datetime.strptime(date_from,"%Y-%m-%d")
             day_to = datetime.strptime(date_to,"%Y-%m-%d")
-            
             if day_to.day == 31:
                 nb_of_days = ((day_to - day_from).days + 1) -1
 
@@ -242,25 +241,41 @@ class hr_payslip(osv.osv):
             for day in range(0, nb_of_days):
                 
                 working_hours_on_day = self.pool.get('resource.calendar').working_hours_on_day(cr, uid, contract.working_hours, day_from + timedelta(days=day), context)
+                _logger.info('working_hours_on_day')
+                _logger.info(working_hours_on_day)
                 
                 if working_hours_on_day:
                     #the employee had to work
                     leave_type = was_on_leave(contract.employee_id.id, day_from + timedelta(days=day), context=context)
+                    _logger.info('leave_type')
                     _logger.info(leave_type)
+
                     if leave_type:
                         #if he was on leave, fill the leaves dict
-                        if leave_type in leaves:
-                            leaves[leave_type]['number_of_days'] += 1.0
-                            leaves[leave_type]['number_of_hours'] += working_hours_on_day
+                        if leave_type.name in leaves:
+                            leaves[leave_type.name]['number_of_days'] += 1.0
+                            leaves[leave_type.name]['number_of_hours'] += working_hours_on_day
                         else:
-                            leaves[leave_type] = {
-                                'name': leave_type,
-                                'sequence': 5,
-                                'code': leave_type,
-                                'number_of_days': 1.0,
-                                'number_of_hours': working_hours_on_day,
-                                'contract_id': contract.id,
-                            }
+                            if leave_type.holiday_status_id.categ_id.notunaffected_days:
+                                leaves[leave_type.name] = {
+                                    'name': leave_type.name,
+                                    'sequence': 5,
+                                    'code': leave_type.holiday_status_id.name,
+                                    'number_of_days': leave_type.number_of_days_temp,
+                                    'number_of_hours': leave_type.number_of_days_temp * 24,
+                                    'contract_id': contract.id,
+                                }
+                                attendances['number_of_days'] += 1.0
+                                attendances['number_of_hours'] += working_hours_on_day
+                            else:
+                                leaves[leave_type.name] = {
+                                    'name': leave_type.name,
+                                    'sequence': 5,
+                                    'code': leave_type.holiday_status_id.name,
+                                    'number_of_days': leave_type.number_of_days_temp,
+                                    'number_of_hours': leave_type.number_of_days_temp * 24,
+                                    'contract_id': contract.id,
+                                }
                     else:
                         #add the input vals to tmp (increment if existing)
                         attendances['number_of_days'] += 1.0

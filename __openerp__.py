@@ -21,6 +21,8 @@ legislación vigente en Colombia.
                 'views/hr_payroll_account_view.xml',
                 'views/hr_job_view.xml',
                 'views/hr_config_payroll.xml',
+                'views/hr_contract_view.xml',
+                'views/hr_holidays_view.xml',
                 'security/ir.model.access.csv'
               ],
     'installable': True,

@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<openerp>
+    <data>
+        <record id="edit_holiday_new_inherit" model="ir.ui.view">
+            <field name="name">Novedades</field>
+            <field name="model">hr.holidays</field>
+            <field name="inherit_id" ref="hr_holidays.edit_holiday_new"/>
+            <field name="priority">30</field>
+            <field name="arch" type="xml">
+            <data>
+               <xpath expr="//field[@name='date_from']" position="replace">
+                    <field name="date_from" attrs="{'required':[('type', '=', 'remove')]}" class="oe_inline"/>         
+               </xpath>
+               <xpath expr="//field[@name='date_to']" position="replace">
+                    <field name="date_to" attrs="{'required':[('type', '=', 'remove')]}" class="oe_inline"/>     
+               </xpath>
+            </data>
+            </field>
+        </record>
+        <record id="editview_calendar_event_type_inherit" model="ir.ui.view">
+            <field name="name">Tipos Novedades</field>
+            <field name="model">calendar.event.type</field>
+            <field name="inherit_id" ref="calendar.view_calendar_event_type_tree"/>
+            <field name="arch" type="xml">
+              <data>
+                 <xpath expr="field[@name='name']" position="after">
+                      <field name="notunaffected_days"/>         
+                 </xpath>
+              </data>
+            </field>
+        </record>-->
+    </data>
+</openerp>
