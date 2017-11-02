@@ -262,7 +262,7 @@ class hr_payslip(osv.osv):
                                     'sequence': 5,
                                     'code': leave_type.holiday_status_id.name,
                                     'number_of_days': leave_type.number_of_days_temp,
-                                    'number_of_hours': leave_type.number_of_days_temp * 24,
+                                    'number_of_hours': leave_type.number_of_hours_temp,
                                     'contract_id': contract.id,
                                 }
                                 attendances['number_of_days'] += 1.0
@@ -273,7 +273,7 @@ class hr_payslip(osv.osv):
                                     'sequence': 5,
                                     'code': leave_type.holiday_status_id.name,
                                     'number_of_days': leave_type.number_of_days_temp,
-                                    'number_of_hours': leave_type.number_of_days_temp * 24,
+                                    'number_of_hours': leave_type.number_of_hours_temp,
                                     'contract_id': contract.id,
                                 }
                     else:

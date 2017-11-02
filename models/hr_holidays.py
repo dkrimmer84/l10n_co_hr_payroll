@@ -7,9 +7,11 @@
 
 from openerp import models, fields, api, _
 from openerp.tools import float_is_zero
-import datetime
+import re
+import ast
+from datetime import *
 import calendar
-from datetime import datetime, timedelta, date
+
 from openerp.tools import DEFAULT_SERVER_DATE_FORMAT
 import logging
 from openerp import SUPERUSER_ID
@@ -19,6 +21,8 @@ HOURS_PER_DAY = 8
 
 class hr_holidays(models.Model):
     _inherit = 'hr.holidays'
+
+    number_of_hours_temp = fields.Float('Numero de Horas')
 
     @api.multi
     @api.onchange('date_to', 'date_from')
@@ -38,10 +42,30 @@ class hr_holidays(models.Model):
             _date_to = datetime.strptime(date_to, "%Y-%m-%d %H:%M:%S")
             dates = _date_to - _date_from
 
-            diff_day = dates.days + ((dates.seconds / float(3600)) / float(24))
+            diff_day = dates.days
+            diff_hours = (dates.seconds / float(3600))
+
             self.number_of_days_temp = diff_day
+            self.number_of_hours_temp = diff_hours
         else:
             self.number_of_days_temp = 0
+            self.number_of_hours_temp = 0
+
+    @api.multi
+    @api.onchange('number_of_days_temp', 'number_of_hours_temp')
+    def onchange_days_hours(self):
+        hours = self.number_of_hours_temp
+        days = self.number_of_days_temp
+
+        anio = datetime.now().strftime('%Y')
+        mes = datetime.now().strftime('%m')
+        dia = datetime.now().strftime('%d')
+        hora = datetime.now().strftime('%H')
+        minutos = datetime.now().strftime('%M')
+        segundos = datetime.now().strftime('%S')
+        
+        self.date_from = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+        self.date_to = anio + '-' + mes + '-' + str(int(dia) + int(days)).zfill(2) + ' ' + str(int(hora) + int(hours)).zfill(2) + ':' + minutos + ':' + segundos
 
 
 class calendar_event_type(models.Model):
