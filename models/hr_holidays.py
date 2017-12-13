@@ -12,6 +12,8 @@ import ast
 from datetime import *
 import calendar
 
+
+
 from openerp.tools import DEFAULT_SERVER_DATE_FORMAT
 import logging
 from openerp import SUPERUSER_ID
@@ -57,15 +59,12 @@ class hr_holidays(models.Model):
         hours = self.number_of_hours_temp
         days = self.number_of_days_temp
 
-        anio = datetime.now().strftime('%Y')
-        mes = datetime.now().strftime('%m')
-        dia = datetime.now().strftime('%d')
-        hora = datetime.now().strftime('%H')
-        minutos = datetime.now().strftime('%M')
-        segundos = datetime.now().strftime('%S')
+        if self.date_from:
+
+            date_from = datetime.strptime(self.date_from, "%Y-%m-%d %H:%M:%S") 
+            self.date_to = datetime.strptime('%s-%s-%s %s:%s:%s' % ( date_from.year, date_from.month, date_from.day, date_from.hour, date_from.minute, date_from.second ), "%Y-%m-%d %H:%M:%S") +  timedelta( days = days ) + timedelta( hours = hours ) 
         
-        self.date_from = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-        self.date_to = anio + '-' + mes + '-' + str(int(dia) + int(days)).zfill(2) + ' ' + str(int(hora) + int(hours)).zfill(2) + ':' + minutos + ':' + segundos
+      
 
 
 class calendar_event_type(models.Model):
