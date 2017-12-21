@@ -63,7 +63,8 @@ class hr_holidays(models.Model):
 
             date_from = datetime.strptime(self.date_from, "%Y-%m-%d %H:%M:%S") 
             self.date_to = datetime.strptime('%s-%s-%s %s:%s:%s' % ( date_from.year, date_from.month, date_from.day, date_from.hour, date_from.minute, date_from.second ), "%Y-%m-%d %H:%M:%S") +  timedelta( days = days ) + timedelta( hours = hours ) 
-        
+        _logger.info('Prueba')
+        _logger.info(self.date_to)
       
 
 
