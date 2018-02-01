@@ -15,7 +15,7 @@ legislación vigente en Colombia.
     'author' : 'Hector Ivan Valencia Muñoz',
     'website': 'http://www.odoo-co.blogspot.com',
     'license': 'AGPL-3',
-    'depends' : ['hr_payroll', 'hr_payroll_account'],
+    'depends' : ['hr_payroll', 'hr_payroll_account','hr_holidays'],
     'data' : [
                 'views/hr_payroll_view.xml',
                 'views/hr_payroll_account_view.xml',

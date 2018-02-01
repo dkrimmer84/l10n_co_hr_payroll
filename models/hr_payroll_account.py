@@ -206,12 +206,28 @@ class hr_payslip(osv.osv):
             res2 = []
             day = datetime_day.strftime("%Y-%m-%d") 
 
-            holiday_ids = self.pool.get('hr.holidays').search(cr, uid, [('state','=','validate'),('employee_id','=',employee_id),('type','=','remove'),
-                ('date_from','<=',day),('date_to','>=',day)])
+            """holiday_ids = self.pool.get('hr.holidays').search(cr, uid, [('state','=','validate'),('employee_id','=',employee_id),('type','=','remove'),
+                ('date_from','<=',day),('date_to','>=',day)])"""
+
+            holiday_ids  = []                
+            sql = """
+            select id as id from hr_holidays
+            where state = 'validate' and employee_id = %s and type = 'remove'
+            and (date_from - interval '5 hour')::date <= '%s' and (date_to - interval '5 hour')::date >= '%s'
+
+            """ % ( employee_id, day, day )
+
+            cr.execute( sql )
+            _logger.info('sql')
+            _logger.info(sql)
+            res = cr.dictfetchall(  )
+
+            holiday_ids = [ re.get('id') for re in res ]
+            _logger.info('holidays')
+            _logger.info(holiday_ids)
+
             if holiday_ids:
                 res = self.pool.get('hr.holidays').browse(cr, uid, holiday_ids, context=context)[0]
-                res2 = []
-
 
                 """for re in res:
                     date_from = datetime.strptime(re.date_from, "%Y-%m-%d %H:%M:%S") - timedelta(hours= 5) 
@@ -233,8 +249,6 @@ class hr_payslip(osv.osv):
 
                     #_logger.info( str(re.date_from - timedelta(hours= 5) ) +  ' - ' + str(re.date_to  - timedelta(hours= 5) ) )
 
-            _logger.info("respuesta")
-            _logger.info( res )
 
             return res
 
@@ -276,13 +290,13 @@ class hr_payslip(osv.osv):
                 if working_hours_on_day:
                     #the employee had to work
                     leave_type = was_on_leave(contract.employee_id.id, day_from + timedelta(days=day), context=context)
-                    
+
+                    _logger.info('Prueba')
+                    _logger.info(leave_type)
+
                     if leave_type:
-                        _logger.info('entra******************************** 1')
-                        if leave_type.holiday_status_id.categ_id.notunaffected_days:
-                            _logger.info('entraaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa 2')                            
-                            if leave_type.name in leaves:
-                                _logger.info('pruebaaaaaaaaaaaaaaaaaaaa hola')
+                        if leave_type.holiday_status_id.categ_id.notunaffected_days: 
+                            if leave_type.name in leaves:  
                                 if leave_type.id in in_id:
                                     attendances['number_of_days'] += 1.0
                                     attendances['number_of_hours'] += working_hours_on_day
@@ -293,7 +307,7 @@ class hr_payslip(osv.osv):
                                 attendances['number_of_days'] += 1.0
                                 attendances['number_of_hours'] += working_hours_on_day
                             else:
-                                _logger.info('Prueba no es igual')
+                                
                                 leaves[leave_type.name] = {
                                     'name': leave_type.name,
                                     'sequence': 0,
@@ -306,9 +320,9 @@ class hr_payslip(osv.osv):
                                 attendances['number_of_days'] += 1.0
                                 attendances['number_of_hours'] += working_hours_on_day
                         else:
-                            _logger.info('Entraaaaaaaaaaaaaaaaaaaaaaaaaaaaa 3')
+                            
                             if leave_type.name in leaves:
-                                _logger.info('hola es igual')
+                                
                                 if leave_type.id in in_id:
                                     continue
 
@@ -316,10 +330,10 @@ class hr_payslip(osv.osv):
                                 leaves[leave_type.name]['number_of_days'] += 1.0
                                 leaves[leave_type.name]['number_of_hours'] += working_hours_on_day
                             else:
-                                _logger.info('Hola No es Igual')
+                                
                                 leaves[leave_type.name] = {
                                     'name': leave_type.name,
-                                    'sequence': 5,
+                                    'sequence': 0,
                                     'code': leave_type.holiday_status_id.name,
                                     'number_of_days': leave_type.number_of_days_temp,
                                     'number_of_hours': leave_type.number_of_hours_temp,
@@ -328,11 +342,10 @@ class hr_payslip(osv.osv):
                                 in_id.append(  leave_type.id )
                         #if he was on leave, fill the leaves dict
                     else:
-                        _logger.info('Entraaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa 4')
                         #add the input vals to tmp (increment if existing)
                         attendances['number_of_days'] += 1.0
                         attendances['number_of_hours'] += working_hours_on_day
-                        _logger.info(attendances['number_of_days'])
+                        
             leaves = [value for key,value in leaves.items()]
             res += [attendances] + leaves
         return res

@@ -4,7 +4,7 @@ from openerp import models, fields, api, _
 from openerp.exceptions import except_orm, Warning, RedirectWarning
 from openerp.osv import osv
 from openerp.exceptions import UserError, ValidationError
-from datetime import datetime, timedelta, date
+from datetime import *
 import logging
 _logger = logging.getLogger(__name__)
 
@@ -17,7 +17,89 @@ class hr_employee_category(models.Model):
     salario_minimo_r = fields.Float('Salario Minimo Vigente', related = 'salario_minimo', readonly= True)
     aux_transporte_r = fields.Float('Auxilio de Transporte', related = 'aux_transporte', readonly= True)      
     base_sal_min = fields.Boolean('Base Salario Minimo')
+    hollidays_ids = fields.One2many('holidays.record','contract_id','Holidays')
     
+    @api.model
+    def hollidays_cron(self):
+        
+        contract_model = self.env['hr.contract']
+        consult_contract = contract_model.search([('type_id','=', 1), ('state','!=', 'close')])
+
+        for contract in consult_contract:
+            _holidays= []
+            real_year = datetime.now()
+            last_year = real_year - timedelta(days=365)
+            year_contract = fields.Datetime.from_string(contract.date_start)
+            if last_year.year >= year_contract.year:
+               
+                _ini_date_hollidays = datetime.strptime('%s-%s-%s' % ( last_year.year, year_contract.month, year_contract.day), "%Y-%m-%d")
+                _fin_date_hollidays = _ini_date_hollidays + timedelta(days=364)
+                _hollidays_id = 0
+                _date_ini_attendance = False
+                _date_end_attendance =  False
+                _paylist = False
+
+                model_hollidays = self.env['hr.holidays']
+                consult_holidays = model_hollidays.search([('employee_id', '=', contract.employee_id.id)])
+                model_payroll = self.env['hr.payslip']
+                consult_payroll = model_payroll.search([('employee_id', '=', contract.employee_id.id)])
+                model_holidays_satus = self.env['hr.holidays.status']
+                modeL_ir_traslation = self.env['ir.translation']
+                
+                for absence in consult_holidays:
+                    if absence.holiday_status_id.is_hollidays:
+                      
+                        _fin_holidays = _fin_date_hollidays + timedelta(days=365)
+                
+                        if absence.date_from >= str(_fin_date_hollidays) and absence.date_to <= str(_fin_holidays):
+                            
+                            _hollidays_id = absence.id
+                            _date_ini_attendance = absence.date_from
+                            _date_end_attendance =  absence.date_to
+                            for payslip in consult_payroll:
+                                for work_line in payslip.worked_days_line_ids:
+                                    consul_ir_traslation = modeL_ir_traslation.search([('value', '=', work_line.code),('name','=', 'hr.holidays.status,name')])
+                                    for traslation in consul_ir_traslation:
+                                        if traslation.src == absence.holiday_status_id.name:
+                                            _paylist = payslip.id
+                if contract.hollidays_ids:
+                    for holli in contract.hollidays_ids:
+                        if datetime.strptime(holli.ini_date_hollidays, "%Y-%m-%d") == _ini_date_hollidays and datetime.strptime(holli.fin_date_hollidays,"%Y-%m-%d") == _fin_date_hollidays:
+                            _holidays.append((1, holli.id, {
+                                        'ini_date_hollidays': _ini_date_hollidays,
+                                        'fin_date_hollidays': _fin_date_hollidays,
+                                        'hollidays_id': _hollidays_id,
+                                        'date_ini_attendance': _date_ini_attendance,
+                                        'date_end_attendance': _date_end_attendance,
+                                        'payslip_id': _paylist,
+                                        'contract_id': contract.id,
+                                    }))
+                        else:
+                            _holidays.append((0, 0, {
+                                        'ini_date_hollidays': _ini_date_hollidays,
+                                        'fin_date_hollidays': _fin_date_hollidays,
+                                        'hollidays_id': _hollidays_id,
+                                        'date_ini_attendance': _date_ini_attendance,
+                                        'date_end_attendance': _date_ini_attendance,
+                                        'payslip_id': _paylist,
+                                        'contract_id': contract.id,
+                                    }))
+                else:
+                    _holidays.append((0, 0, {
+                                'ini_date_hollidays': _ini_date_hollidays,
+                                'fin_date_hollidays': _fin_date_hollidays,
+                                'hollidays_id': _hollidays_id,
+                                'date_ini_attendance': _date_ini_attendance,
+                                'date_end_attendance': _date_ini_attendance,
+                                'payslip_id': _paylist,
+                                'contract_id': contract.id,
+                            }))
+                
+            contract.write({
+                'hollidays_ids' : _holidays
+                }) 
+
+        
 
     def configuracion(self):
         salario_minimo = 0
@@ -61,6 +143,17 @@ class hr_employee_category(models.Model):
                 self.salario_minimo= _config[2]
 
         
+class holidays_record(models.Model):
+
+    _name = 'holidays.record'
+
+    ini_date_hollidays = fields.Date('Desde')
+    fin_date_hollidays = fields.Date('Hasta')
+    hollidays_id = fields.Many2one('hr.holidays', 'Ausencias')
+    date_ini_attendance = fields.Date('Desde')
+    date_end_attendance = fields.Date('Hasta')
+    payslip_id = fields.Many2one('hr.payslip', u'Liquidacion')
+    contract_id = fields.Integer('Contrato' ,required = True )
 
 
 

@@ -73,3 +73,7 @@ class calendar_event_type(models.Model):
 
     notunaffected_days = fields.Boolean('No Afecta Dias Laborados')
 
+class calendar_event_type(models.Model):
+    _inherit = 'hr.holidays.status'
+
+    is_hollidays = fields.Boolean('Es Vacaciones')

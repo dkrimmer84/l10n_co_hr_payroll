@@ -32,6 +32,19 @@
                  </xpath>
               </data>
             </field>
-        </record>-->
+        </record>
+        <record id="edit_holiday_status_form_inherit" model="ir.ui.view">
+            <field name="name">Tipos Novedades Status</field>
+            <field name="model">hr.holidays.status</field>
+            <field name="inherit_id" ref="hr_holidays.edit_holiday_status_form"/>
+            <field name="priority">20</field>
+            <field name="arch" type="xml">
+              <data>
+                 <xpath expr="//field[@name='active']" position="after">
+                      <field name="is_hollidays"/>         
+                 </xpath>
+              </data>
+            </field>
+        </record>
     </data>
 </openerp>

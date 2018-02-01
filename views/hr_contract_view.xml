@@ -17,6 +17,24 @@
                <xpath expr="//field[@name='struct_id']" position="before">
                     <field name="base_sal_min"/>      
                </xpath>
+               <xpath expr="//page[2]" position="after">
+                    <page string="Hollidays Record">
+                        <group>
+                            <field name="hollidays_ids" nolabel="1">
+                                <tree editable="bottom">
+                                    <field name="ini_date_hollidays"/>
+                                    <field name="fin_date_hollidays"/>
+                                    <field name="hollidays_id" string="Ausencias"/>
+                                    <field name="date_ini_attendance"/>
+                                    <field name="date_end_attendance"/>   
+                                    <field name="payslip_id" col="1" />
+                                    <field name="contract_id" invisible="1"/>
+                                </tree>
+                            </field>
+                        </group>
+                    </page>   
+               </xpath>
+               
             </data>
             </field>
         </record>
