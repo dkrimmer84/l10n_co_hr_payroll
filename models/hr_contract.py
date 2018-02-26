@@ -30,8 +30,8 @@ class hr_employee_category(models.Model):
             real_year = datetime.now()
             last_year = real_year - timedelta(days=365)
             year_contract = fields.Datetime.from_string(contract.date_start)
+            _state = 'pending'
             if last_year.year >= year_contract.year:
-               
                 _ini_date_hollidays = datetime.strptime('%s-%s-%s' % ( last_year.year, year_contract.month, year_contract.day), "%Y-%m-%d")
                 _fin_date_hollidays = _ini_date_hollidays + timedelta(days=364)
                 _hollidays_id = 0
@@ -52,7 +52,7 @@ class hr_employee_category(models.Model):
                         _fin_holidays = _fin_date_hollidays + timedelta(days=365)
                 
                         if absence.date_from >= str(_fin_date_hollidays) and absence.date_to <= str(_fin_holidays):
-                            
+                            _state = 'programmed'
                             _hollidays_id = absence.id
                             _date_ini_attendance = absence.date_from
                             _date_end_attendance =  absence.date_to
@@ -62,6 +62,12 @@ class hr_employee_category(models.Model):
                                     for traslation in consul_ir_traslation:
                                         if traslation.src == absence.holiday_status_id.name:
                                             _paylist = payslip.id
+                                            _state = 'liquidated'
+                        else:
+                            template_id_model = self.env['mail.template']
+                            template_id = template_id_model.sudo().search([('name', '=', 'Holidays Pending')])                    
+                            template_id.send_mail(contract.id, True)
+
                 if contract.hollidays_ids:
                     for holli in contract.hollidays_ids:
                         if datetime.strptime(holli.ini_date_hollidays, "%Y-%m-%d") == _ini_date_hollidays and datetime.strptime(holli.fin_date_hollidays,"%Y-%m-%d") == _fin_date_hollidays:
@@ -73,6 +79,7 @@ class hr_employee_category(models.Model):
                                         'date_end_attendance': _date_end_attendance,
                                         'payslip_id': _paylist,
                                         'contract_id': contract.id,
+                                        'state' : _state
                                     }))
                         else:
                             _holidays.append((0, 0, {
@@ -83,6 +90,7 @@ class hr_employee_category(models.Model):
                                         'date_end_attendance': _date_ini_attendance,
                                         'payslip_id': _paylist,
                                         'contract_id': contract.id,
+                                        'state' : _state
                                     }))
                 else:
                     _holidays.append((0, 0, {
@@ -93,6 +101,7 @@ class hr_employee_category(models.Model):
                                 'date_end_attendance': _date_ini_attendance,
                                 'payslip_id': _paylist,
                                 'contract_id': contract.id,
+                                'state' : _state
                             }))
                 
             contract.write({
@@ -154,6 +163,8 @@ class holidays_record(models.Model):
     date_end_attendance = fields.Date('Hasta')
     payslip_id = fields.Many2one('hr.payslip', u'Liquidacion')
     contract_id = fields.Integer('Contrato' ,required = True )
+    state = fields.Selection([('pending', 'Pending'), ('programmed', 'Programmed'),
+     ('liquidated', 'Liquidated')], 'State', default = 'pending')
 
 
 
