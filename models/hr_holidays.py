@@ -72,6 +72,7 @@ class calendar_event_type(models.Model):
     _inherit = 'calendar.event.type'
 
     notunaffected_days = fields.Boolean('No Afecta Dias Laborados')
+    is_hours_additional = fields.Boolean('Horas Extras')
 
 class calendar_event_type(models.Model):
     _inherit = 'hr.holidays.status'

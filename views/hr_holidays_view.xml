@@ -28,7 +28,8 @@
             <field name="arch" type="xml">
               <data>
                  <xpath expr="field[@name='name']" position="after">
-                      <field name="notunaffected_days"/>         
+                      <field name="notunaffected_days"/>
+                      <field name="is_hours_additional"/>         
                  </xpath>
               </data>
             </field>

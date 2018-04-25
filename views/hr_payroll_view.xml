@@ -10,9 +10,9 @@
             <data>
                <xpath expr="//group[@name='active_group']" position="before">
                  <group string="Afiliaciones">
-                    <field name="eps_id" help="EPS a la que se encuentra afiliado el empleado"/>
-                    <field name="fp_id" help="Fondo de Pensiones al que se encuentra afiliado el empleado"/>
-                    <field name="fc_id" help="Fondo de Cesantías al que se encuentra afiliado el empleado"/>
+                    <field name="eps_id" help="EPS a la que se encuentra afiliado el empleado" required="1"/>
+                    <field name="fp_id" help="Fondo de Pensiones al que se encuentra afiliado el empleado" required="1"/>
+                    <field name="fc_id" help="Fondo de Cesantías al que se encuentra afiliado el empleado" required="1"/>
                  </group>
                </xpath>
             </data>

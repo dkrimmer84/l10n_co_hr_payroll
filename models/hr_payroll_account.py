@@ -282,11 +282,11 @@ class hr_payslip(osv.osv):
 
                             if leave_type.number_of_days_temp >= 1:
 
-
+                                
                                 ignore_days.update({
                                     leave_type.id : ignore_days.get( leave_type.id, 0 ) + 1 
                                 })
-
+                                _logger.info(ignore_days)
 
                                 if ignore_days.get( leave_type.id, 0 ) > leave_type.number_of_days_temp:
                                     attendances['number_of_days'] += 1.0
@@ -294,58 +294,68 @@ class hr_payslip(osv.osv):
 
                             
                             if leave_type.holiday_status_id.categ_id.notunaffected_days:
-                                
-                                if leave_type.name in leaves:
-                                    
-                                    if leave_type.id in in_id:
+                                if leave_type.holiday_status_id.categ_id.is_hours_additional:
+                                    if leave_type.name in leaves:
+                                       
+                                        if leave_type.id in in_id:
+                                           
+                                            attendances['number_of_days'] += 1.0
+                                            attendances['number_of_hours'] += working_hours_on_day
+                                            leaves[leave_type.name]['number_of_days'] += 1.0
+                                            continue
+
+                                        in_id.append( leave_type.id )
+                                   
                                         attendances['number_of_days'] += 1.0
                                         attendances['number_of_hours'] += working_hours_on_day
-                                        continue
-
-                                    in_id.append(  leave_type.id )
-
-                                    leaves[leave_type.name]['number_of_days'] += leave_type.number_of_days_temp
-                                    leaves[leave_type.name]['number_of_hours'] += leave_type.number_of_hours_temp
-                                    attendances['number_of_days'] += 1.0
-                                    attendances['number_of_hours'] += working_hours_on_day
+                                    else:
+                                        
+                                        leaves[leave_type.name] = {
+                                            'name': leave_type.name,
+                                            'sequence': 0,
+                                            'code': leave_type.holiday_status_id.name,
+                                            'number_of_days': leave_type.number_of_days_temp,
+                                            'number_of_hours': leave_type.number_of_hours_temp,
+                                            'contract_id': contract.id,
+                                        }
+                                        in_id.append(leave_type.id )
+                                        attendances['number_of_days'] += 1.0
+                                        attendances['number_of_hours'] += working_hours_on_day
                                 else:
-                                    
-                                    leaves[leave_type.name] = {
-                                        'name': leave_type.name,
-                                        'sequence': 0,
-                                        'code': leave_type.holiday_status_id.name,
-                                        'number_of_days': leave_type.number_of_days_temp,
-                                        'number_of_hours': leave_type.number_of_hours_temp,
-                                        'contract_id': contract.id,
-                                    }
-                                    in_id.append(  leave_type.id )
-                                    attendances['number_of_days'] += 1.0
-                                    attendances['number_of_hours'] += working_hours_on_day
+                                    if leave_type.name in leaves:
+                                       
+                                        leaves[leave_type.name]['number_of_days'] += 1
+                                        attendances['number_of_days'] += 1.0
+                                        attendances['number_of_hours'] += working_hours_on_day
+                                    else:
+                                        leaves[leave_type.name] = {
+                                            'name': leave_type.name,
+                                            'sequence': 0,
+                                            'code': leave_type.holiday_status_id.name,
+                                            'number_of_days': 1,
+                                            'number_of_hours': leave_type.number_of_hours_temp,
+                                            'contract_id': contract.id,
+                                        }
+                                        
+                                        attendances['number_of_days'] += 1.0
+                                        attendances['number_of_hours'] += working_hours_on_day
                             else:
                                 
                                 if leave_type.name in leaves:
                                     
-                                    if leave_type.id in in_id:
-                                        continue
-
-                                    in_id.append(  leave_type.id )
-                                    leaves[leave_type.name]['number_of_days'] += leave_type.number_of_days_temp
-                                    leaves[leave_type.name]['number_of_hours'] += leave_type.number_of_hours_temp
+                                    leaves[leave_type.name]['number_of_days'] += 1
+                                   
                                 else:
                                     
                                     leaves[leave_type.name] = {
                                         'name': leave_type.name,
                                         'sequence': 5,
                                         'code': leave_type.holiday_status_id.name,
-                                        'number_of_days': leave_type.number_of_days_temp,
-                                        'number_of_hours': leave_type.number_of_hours_temp,
+                                        'number_of_days': 1,
+                                        'number_of_hours': working_hours_on_day,
                                         'contract_id': contract.id,
                                     }
-                                    in_id.append(  leave_type.id )
-
-                                
-                                _logger.info(leaves)    
-                            #if he was on leave, fill the leaves dict
+                                    
                         else:
                             
                             #add the input vals to tmp (increment if existing)

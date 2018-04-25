@@ -108,7 +108,41 @@ class hr_employee_category(models.Model):
                 'hollidays_ids' : _holidays
                 }) 
 
+    @api.model
+    def confg_payroll_cron(self):
+
+        modelo_config_nomina = self.env['hr.config.payroll']
+        consulta_config = modelo_config_nomina.search([('fecha_final','>=',fecha_actual)])
+        if consulta_config:
+            salario_minimo = 0
+            auxilio_trans = 0
+          
+            for data in consulta_config:
+                if data.tipo == 'salario_min':
+                    salario_minimo = data.valor
+                if data.tipo == 'aux_trans':
+                    auxilio_trans == data.valor
         
+        self.salario_minimo= salario_minimo
+        self.aux_transporte = auxilio_trans
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        
+
+            
 
     def configuracion(self):
         salario_minimo = 0
