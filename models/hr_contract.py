@@ -1,9 +1,9 @@
 import logging
 _logger = logging.getLogger(__name__)
-from openerp import models, fields, api, _
-from openerp.exceptions import except_orm, Warning, RedirectWarning
-from openerp.osv import osv
-from openerp.exceptions import UserError, ValidationError
+from odoo import models, fields, api, _
+from odoo.exceptions import except_orm, Warning, RedirectWarning
+from odoo.osv import osv
+from odoo.exceptions import UserError, ValidationError
 from datetime import *
 import logging
 _logger = logging.getLogger(__name__)
@@ -39,11 +39,11 @@ class hr_employee_category(models.Model):
                 _date_end_attendance =  False
                 _paylist = False
 
-                model_hollidays = self.env['hr.holidays']
+                model_hollidays = self.env['hr.leave']
                 consult_holidays = model_hollidays.search([('employee_id', '=', contract.employee_id.id)])
                 model_payroll = self.env['hr.payslip']
                 consult_payroll = model_payroll.search([('employee_id', '=', contract.employee_id.id)])
-                model_holidays_satus = self.env['hr.holidays.status']
+                model_holidays_satus = self.env['hr.leave.status']
                 modeL_ir_traslation = self.env['ir.translation']
                 
                 for absence in consult_holidays:
@@ -58,7 +58,7 @@ class hr_employee_category(models.Model):
                             _date_end_attendance =  absence.date_to
                             for payslip in consult_payroll:
                                 for work_line in payslip.worked_days_line_ids:
-                                    consul_ir_traslation = modeL_ir_traslation.search([('value', '=', work_line.code),('name','=', 'hr.holidays.status,name')])
+                                    consul_ir_traslation = modeL_ir_traslation.search([('value', '=', work_line.code),('name','=', 'hr.leave.status,name')])
                                     for traslation in consul_ir_traslation:
                                         if traslation.src == absence.holiday_status_id.name:
                                             _paylist = payslip.id
@@ -192,7 +192,7 @@ class holidays_record(models.Model):
 
     ini_date_hollidays = fields.Date('Desde')
     fin_date_hollidays = fields.Date('Hasta')
-    hollidays_id = fields.Many2one('hr.holidays', 'Ausencias')
+    hollidays_id = fields.Many2one('hr.leave', 'Ausencias')
     date_ini_attendance = fields.Date('Desde')
     date_end_attendance = fields.Date('Hasta')
     payslip_id = fields.Many2one('hr.payslip', u'Liquidacion')

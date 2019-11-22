@@ -1,36 +1,34 @@
 #-*- coding:utf-8 -*-
 # Part of Odoo. See LICENSE file for full copyright and licensing details.
 
-# from openerp import api
+# from odoo import api
 import babel
 import time
-from openerp import netsvc
-from datetime import date, datetime, timedelta
-from openerp import api, tools
-from openerp.osv import fields, osv
-# from openerp.tools import config, float_compare
-from openerp.tools import config, float_compare, float_is_zero
-from openerp.tools.translate import _
-import openerp.addons.decimal_precision as dp
-from openerp.exceptions import UserError
+from odoo import models, fields, api, _
+from odoo import netsvc
+from datetime import date, datetime, time, timedelta
+from pytz import timezone
+from odoo import api, tools
+from odoo.osv import osv
+# from odoo.tools import config, float_compare
+from odoo.tools import config, float_compare, float_is_zero
+from odoo.tools.translate import _
+import odoo.addons.decimal_precision as dp
+from odoo.exceptions import UserError
 import logging
 _logger = logging.getLogger(__name__)
 
 class hr_salary_rule(osv.osv):
     _inherit = 'hr.salary.rule'
-    _columns = {
-        'origin_partner': fields.selection((('employee','Empleado'),
+    
+    origin_partner = fields.Selection((('employee','Empleado'),
                                             ('eps','EPS'),
                                             ('fp','Fondo de Pensiones'),
                                             ('fc','Fondo de cesantías'),
                                             ('rule','Regla salarial')),
-                                  'Tipo de tercero', required=True),
-        'partner_id':fields.many2one('res.partner', 'Tercero'),
-    }
-
-    _defaults = {
-        'origin_partner': 'employee',
-    }
+                                  'Tipo de tercero', required=True, default = 'employee')
+    partner_id = fields.Many2one('res.partner', 'Tercero')
+    
 
 hr_salary_rule()
 
@@ -51,12 +49,15 @@ class hr_payslip(osv.osv):
         date_from = self.date_from
         date_to = self.date_to
 
-        ttyme = datetime.fromtimestamp(time.mktime(time.strptime(date_from, "%Y-%m-%d")))
-        self.name = _('Salary Slip of %s for %s') % (employee_id.name, tools.ustr(babel.dates.format_date(date=ttyme, format='MMMM-y', locale=self.env.context.get('lang', 'en_US'))))
+        #ttyme = datetime.fromtimestamp(time.mktime(time.strptime(date_from.decode('ascii'), "%Y-%m-%d")))
+        #self.name = _('Salary Slip of %s for %s') % (employee_id.name, tools.ustr(babel.dates.format_date(date=ttyme, format='MMMM-y', locale=self.env.context.get('lang', 'en_US'))))
         self.company_id = employee_id.company_id
 
         if not self.env.context.get('contract') or not self.contract_id:
+            _logger.info('entrassssss1')
             contract_ids = self.get_contract(employee_id, date_from, date_to)
+            _logger.info('contract_ids')
+            _logger.info(contract_ids)
             if not contract_ids:
                 return
             self.contract_id = self.contract_id.browse(contract_ids[0])
@@ -67,13 +68,17 @@ class hr_payslip(osv.osv):
 
         #computation of the salary input
         worked_days_line_ids = self.get_worked_day_lines(contract_ids, date_from, date_to)
+        _logger.info('pruebaababababbaba')
+        _logger.info(worked_days_line_ids)
         worked_days_lines = self.worked_days_line_ids.browse([])
         for r in worked_days_line_ids:
+            _logger.info('entraaaaa2')
             worked_days_lines += worked_days_lines.new(r)
         self.worked_days_line_ids = worked_days_lines
         input_line_ids = self.get_inputs(contract_ids, date_from, date_to)
         input_lines = self.input_line_ids.browse([])
         for r in input_line_ids:
+            _logger.info('entrasssss3')
             input_lines += input_lines.new(r)
         self.input_line_ids = input_lines
         return
@@ -193,15 +198,16 @@ class hr_payslip(osv.osv):
             move_pool.post(cr, uid, [move_id], context=context)
         return True
 
-    def get_worked_day_lines(self, cr, uid, contract_ids, date_from, date_to, context=None):
-        """
-        @param contract_ids: list of contract id
-        @return: returns a list of dict containing the input that should be applied for the given contract between date_from and date_to
-        """
+    
+    def get_worked_day_lines(self,contract_ids, date_from, date_to):
+        
+        #@param contract_ids: list of contract id
+        #@return: returns a list of dict containing the input that should be applied for the given contract between date_from and date_to
+        
         #value = {}
         ##payslip = self.pool.get('hr.payslip')
-
-        def was_on_leave(employee_id, datetime_day, context=None):
+        model_hr_contract = self.env['hr.contract']
+        def was_on_leave(employee_id, datetime_day):
             res = False
             res2 = []
 
@@ -226,14 +232,16 @@ class hr_payslip(osv.osv):
 
 
             if holiday_ids:
-                res = self.pool.get('hr.holidays').browse(cr, uid, holiday_ids, context=context)[0]
+                res = self.pool.get('hr.leave').browse(holiday_ids)[0]
 
 
             return res
 
         res = []
-        for contract in self.pool.get('hr.contract').browse(cr, uid, contract_ids, context=context):
-            if not contract.working_hours:
+        _logger.info('pruebababbaabab')
+
+        for contract in model_hr_contract.browse(contract_ids[0]):
+            if not contract.resource_calendar_id:
                 #fill only if the contract as a working schedule linked
                 continue
             attendances = {
@@ -245,8 +253,8 @@ class hr_payslip(osv.osv):
                  'contract_id': contract.id,
             }
             leaves = {}
-            day_from = datetime.strptime(date_from,"%Y-%m-%d")
-            day_to = datetime.strptime(date_to,"%Y-%m-%d")
+            day_from = datetime.combine(fields.Date.from_string(date_from), time.min)
+            day_to = datetime.combine(fields.Date.from_string(date_to), time.max)
 
 
             if day_to.day == 31:
@@ -268,15 +276,20 @@ class hr_payslip(osv.osv):
                 if contract.date_end:
                     contract_date = contract.date_end
                 else:
-                    contract_date = '31/12/'+ str(day_from.year)
-                    
-                if str(day_from + timedelta(days=day)) <= contract_date  and str(day_from + timedelta(days=day)) >= contract.date_start:
-                    _logger.info('Entra')
-                    working_hours_on_day = self.pool.get('resource.calendar').working_hours_on_day(cr, uid, contract.working_hours, day_from + timedelta(days=day), context)                
+                    contract_date = str(day_from.year)+'-12-32' 
+                      
+                if str(day_from + timedelta(days=day)) <= contract_date  and (str(day_from + timedelta(days=day)) >= str(contract.date_start)):
+                    calendar = contract.resource_calendar_id
+                    tz = timezone(calendar.tz)
+                    working_hours_on_day = calendar.get_work_hours_count(
+                        tz.localize(datetime.combine(fields.Date.from_string(day), time.min)),
+                        tz.localize(datetime.combine(fields.Date.from_string(day), time.max)),
+                        compute_leaves=False,
+                    )
                     if working_hours_on_day:
-                        
+                        _logger.info('entraaaaaaa34566')
                         #the employee had to work
-                        leave_type = was_on_leave(contract.employee_id.id, day_from + timedelta(days=day), context=context)
+                        leave_type = was_on_leave(contract.employee_id.id, day_from + timedelta(days=day))
 
                         if leave_type:
 

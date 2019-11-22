@@ -1,12 +1,12 @@
 #-*- coding:utf-8 -*-
 # Part of Odoo. See LICENSE file for full copyright and licensing details.
 
-# from openerp import api
+# from odoo import api
 # -*- coding: utf-8 -*-
 
 
-from openerp import models, fields, api, _
-from openerp.tools import float_is_zero
+from odoo import models, fields, api, _
+from odoo.tools import float_is_zero
 import re
 import ast
 from datetime import *
@@ -14,15 +14,15 @@ import calendar
 
 
 
-from openerp.tools import DEFAULT_SERVER_DATE_FORMAT
+from odoo.tools import DEFAULT_SERVER_DATE_FORMAT
 import logging
-from openerp import SUPERUSER_ID
+from odoo import SUPERUSER_ID
 _logger = logging.getLogger(__name__)
 
 HOURS_PER_DAY = 8
 
 class hr_holidays(models.Model):
-    _inherit = 'hr.holidays'
+    _inherit = 'hr.leave'
 
     number_of_hours_temp = fields.Float('Numero de Horas')
 
@@ -75,6 +75,6 @@ class calendar_event_type(models.Model):
     is_hours_additional = fields.Boolean('Horas Extras')
 
 class calendar_event_type(models.Model):
-    _inherit = 'hr.holidays.status'
+    _inherit = 'hr.leave.type'
 
     is_hollidays = fields.Boolean('Es Vacaciones')

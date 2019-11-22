@@ -23,7 +23,7 @@ legislación vigente en Colombia.
                 'views/hr_config_payroll.xml',
                 'views/hr_contract_view.xml',
                 'views/hr_holidays_view.xml',
-                'security/ir.model.access.csv'
+                #'security/ir.model.access.csv'
               ],
     'installable': True,
     'auto_install': False,
