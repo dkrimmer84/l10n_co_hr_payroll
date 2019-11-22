@@ -54,10 +54,9 @@ class hr_payslip(osv.osv):
         self.company_id = employee_id.company_id
 
         if not self.env.context.get('contract') or not self.contract_id:
-            _logger.info('entrassssss1')
+            
             contract_ids = self.get_contract(employee_id, date_from, date_to)
-            _logger.info('contract_ids')
-            _logger.info(contract_ids)
+            
             if not contract_ids:
                 return
             self.contract_id = self.contract_id.browse(contract_ids[0])
@@ -67,18 +66,14 @@ class hr_payslip(osv.osv):
         self.struct_id = self.contract_id.struct_id
 
         #computation of the salary input
-        worked_days_line_ids = self.get_worked_day_lines(contract_ids, date_from, date_to)
-        _logger.info('pruebaababababbaba')
-        _logger.info(worked_days_line_ids)
+        worked_days_line_ids = self.get_worked_day_lines(self.contract_id, date_from, date_to)
         worked_days_lines = self.worked_days_line_ids.browse([])
         for r in worked_days_line_ids:
-            _logger.info('entraaaaa2')
             worked_days_lines += worked_days_lines.new(r)
         self.worked_days_line_ids = worked_days_lines
-        input_line_ids = self.get_inputs(contract_ids, date_from, date_to)
+        input_line_ids = self.get_inputs(self.contract_id, date_from, date_to)
         input_lines = self.input_line_ids.browse([])
         for r in input_line_ids:
-            _logger.info('entrasssss3')
             input_lines += input_lines.new(r)
         self.input_line_ids = input_lines
         return
@@ -206,7 +201,7 @@ class hr_payslip(osv.osv):
         
         #value = {}
         ##payslip = self.pool.get('hr.payslip')
-        model_hr_contract = self.env['hr.contract']
+        #model_hr_contract = self.env['hr.contract']
         def was_on_leave(employee_id, datetime_day):
             res = False
             res2 = []
@@ -218,14 +213,14 @@ class hr_payslip(osv.osv):
                 day = datetime_day.strftime("%Y-%m-%d " + str( hour ) + ":00:00") 
 
                 sql = """
-                select id as id from hr_holidays
-                where state = 'validate' and employee_id = %s and type = 'remove'
+                select id as id from hr_leave
+                where state = 'validate' and employee_id = %s 
                 and (date_from - interval '5 hour') <= '%s' and (date_to  - interval '5 hour') >= '%s'
 
                 """ % ( employee_id, day, day )
 
-                cr.execute( sql )
-                res = cr.dictfetchall(  )
+                self.env.cr.execute( sql )
+                res = self.env.cr.dictfetchall(  )
 
 
                 holiday_ids += [ re.get('id') for re in res ]
@@ -238,9 +233,8 @@ class hr_payslip(osv.osv):
             return res
 
         res = []
-        _logger.info('pruebababbaabab')
 
-        for contract in model_hr_contract.browse(contract_ids[0]):
+        for contract in contract_ids:
             if not contract.resource_calendar_id:
                 #fill only if the contract as a working schedule linked
                 continue
@@ -271,7 +265,6 @@ class hr_payslip(osv.osv):
           
             in_id = []
             ignore_days = {}
-
             for day in range(0, nb_of_days):
                 if contract.date_end:
                     contract_date = contract.date_end
@@ -282,12 +275,12 @@ class hr_payslip(osv.osv):
                     calendar = contract.resource_calendar_id
                     tz = timezone(calendar.tz)
                     working_hours_on_day = calendar.get_work_hours_count(
-                        tz.localize(datetime.combine(fields.Date.from_string(day), time.min)),
-                        tz.localize(datetime.combine(fields.Date.from_string(day), time.max)),
+                        tz.localize(day_from),
+                        tz.localize(day_to),
                         compute_leaves=False,
                     )
                     if working_hours_on_day:
-                        _logger.info('entraaaaaaa34566')
+                       
                         #the employee had to work
                         leave_type = was_on_leave(contract.employee_id.id, day_from + timedelta(days=day))
 
@@ -299,8 +292,7 @@ class hr_payslip(osv.osv):
                                 ignore_days.update({
                                     leave_type.id : ignore_days.get( leave_type.id, 0 ) + 1 
                                 })
-                                _logger.info(ignore_days)
-
+                        
                                 if ignore_days.get( leave_type.id, 0 ) > leave_type.number_of_days_temp:
                                     attendances['number_of_days'] += 1.0
                                     continue
