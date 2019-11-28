@@ -14,7 +14,7 @@
                             <field name="valor"/>
                          </group>
                          <group col="6">   
-                            <legend class="texto_legend" colspan="6">Vigencia</legend>
+                            <legend class="texto_legend">Vigencia</legend>
                             <field name="fecha_inicial" string="Desde" col="3"/>
                             <field name="fecha_final" string="Hasta" col="3"/>
                         </group>

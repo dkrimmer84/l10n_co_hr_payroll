@@ -10,8 +10,8 @@
             <field name="inherit_id" ref="hr_payroll_account.hr_salary_rule_form_inherit"/>
             <field name="arch" type="xml">
                 <xpath expr="//field[@name='account_tax_id']" position="before">
-                    <!--<field name="origin_partner" help="Permite definir de dónde será tomado el tercero para el registro contable"/>
-                    <field name="partner_id" help="Tercero para el registro contable cuando se ha seleccionado - Tipo de tercero: Regla Salarial"/>-->
+                    <field name="origin_partner" help="Permite definir de dónde será tomado el tercero para el registro contable"/>
+                    <field name="partner_id" help="Tercero para el registro contable cuando se ha seleccionado - Tipo de tercero: Regla Salarial"/>
                 </xpath>
                 <xpath expr="//field[@name='account_debit']" position="replace">
                     <field name="account_debit"/>

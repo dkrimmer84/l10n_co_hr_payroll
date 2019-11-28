@@ -15,7 +15,7 @@
                     <field name="date_to" class="oe_inline"/>     
                </xpath>
                <xpath expr="//field[@name='number_of_days']" position="replace">
-                    <field name="number_of_days" class="oe_inline"/> days<br/>
+                    <field name="number_of_days" class="oe_inline"/> days
                     <field name="number_of_hours_temp" class="oe_inline"/> hours   
                </xpath>
             </data>

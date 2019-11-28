@@ -9,11 +9,8 @@ from odoo import models, fields, api, _
 from odoo.tools import float_is_zero
 import re
 import ast
-from datetime import *
+from datetime import date, datetime, time, timedelta
 import calendar
-
-
-
 from odoo.tools import DEFAULT_SERVER_DATE_FORMAT
 import logging
 from odoo import SUPERUSER_ID
@@ -40,8 +37,8 @@ class hr_holidays(models.Model):
    
         # Compute and update the number of days
         if (date_to and date_from) and (date_from <= date_to):
-            _date_from = datetime.strptime(date_from, "%Y-%m-%d %H:%M:%S")
-            _date_to = datetime.strptime(date_to, "%Y-%m-%d %H:%M:%S")
+            _date_from = datetime.combine(fields.Date.from_string(date_from), time.min)
+            _date_to = datetime.combine(fields.Date.from_string(date_to), time.max)
             dates = _date_to - _date_from
 
             diff_day = dates.days
@@ -61,8 +58,8 @@ class hr_holidays(models.Model):
 
         if self.date_from:
 
-            date_from = datetime.strptime(self.date_from, "%Y-%m-%d %H:%M:%S") 
-            self.date_to = datetime.strptime('%s-%s-%s %s:%s:%s' % ( date_from.year, date_from.month, date_from.day, date_from.hour, date_from.minute, date_from.second ), "%Y-%m-%d %H:%M:%S") +  timedelta( days = days ) + timedelta( hours = hours ) 
+            date_from = datetime.combine(fields.Date.from_string(date_from), time.min) 
+            self.date_to = datetime.datetime('%s-%s-%s %s:%s:%s' % ( date_from.year, date_from.month, date_from.day, date_from.hour, date_from.minute, date_from.second ), "%Y-%m-%d %H:%M:%S") +  timedelta( days = days ) + timedelta( hours = hours ) 
         _logger.info('Prueba')
         _logger.info(self.date_to)
       
