@@ -44,22 +44,22 @@ class hr_holidays(models.Model):
             diff_day = dates.days
             diff_hours = (dates.seconds / float(3600))
 
-            self.number_of_days_temp = diff_day
+            self.number_of_days = diff_day
             self.number_of_hours_temp = diff_hours
         else:
-            self.number_of_days_temp = 0
+            self.number_of_days = 0
             self.number_of_hours_temp = 0
 
     @api.multi
     @api.onchange('number_of_days_temp', 'number_of_hours_temp')
     def onchange_days_hours(self):
         hours = self.number_of_hours_temp
-        days = self.number_of_days_temp
+        days = self.number_of_days
 
         if self.date_from:
 
-            date_from = datetime.combine(fields.Date.from_string(date_from), time.min) 
-            self.date_to = datetime.datetime('%s-%s-%s %s:%s:%s' % ( date_from.year, date_from.month, date_from.day, date_from.hour, date_from.minute, date_from.second ), "%Y-%m-%d %H:%M:%S") +  timedelta( days = days ) + timedelta( hours = hours ) 
+            date_from = datetime.combine(fields.Date.from_string(self.date_from), time.min) 
+            self.date_to = str(fields.Datetime.from_string(date_from)+ timedelta( days = days ) + timedelta( hours = hours ) )
         _logger.info('Prueba')
         _logger.info(self.date_to)
       
