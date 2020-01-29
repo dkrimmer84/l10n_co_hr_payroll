@@ -8,8 +8,8 @@
             <field name="priority">30</field>
             <field name="arch" type="xml">
             <data>
-               <xpath expr="//field[@name='number_of_days']" position="after">
-                    <field name="number_of_hours_temp" class="oe_inline"/> 
+               <xpath expr="//field[@name='name']" position="before">
+                    <field name="number_of_hours_temp" class="oe_inline" attrs="{'invisible' : [('request_unit_hours','=', False)]}"/> 
                </xpath>
             </data>
             </field>

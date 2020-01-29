@@ -42,27 +42,56 @@ class hr_holidays(models.Model):
             dates = _date_to - _date_from
 
             diff_day = dates.days
-            diff_hours = (dates.seconds / float(3600))
 
             self.number_of_days = diff_day
-            self.number_of_hours_temp = diff_hours
         else:
             self.number_of_days = 0
-            self.number_of_hours_temp = 0
 
     @api.multi
-    @api.onchange('number_of_days_temp', 'number_of_hours_temp')
+    @api.onchange('number_of_hours_temp')
     def onchange_days_hours(self):
+        
         hours = self.number_of_hours_temp
-        days = self.number_of_days
+        if self.request_hour_from:
+            if self.request_hour_from > 0:
+                
+                self.request_hour_to = self.request_hour_from + hours
+            else:
+                self.request_hour_to = self.request_hour_from - hours   
+            
 
-        if self.date_from:
 
-            date_from = datetime.combine(fields.Date.from_string(self.date_from), time.min) 
-            self.date_to = str(fields.Datetime.from_string(date_from)+ timedelta( days = days ) + timedelta( hours = hours ) )
-        _logger.info('Prueba')
-        _logger.info(self.date_to)
-      
+    @api.multi
+    @api.onchange('request_hour_from', 'request_hour_to')
+    def onchange_hours(self):
+        self.number_of_hours_temp = 0
+        total_hours =  0
+        if self.request_hour_from:
+            hour_start = self.request_hour_from
+            hour_end = self.request_hour_to
+            if hour_start > 0:
+                _logger.info('prueba1')
+                if self.request_hour_to > 0: 
+                    _logger.info('prueba2')
+                    _logger.info(hour_end - hour_start)
+                    total_hours = hour_end - hour_start
+                else:
+                    _logger.info('prueba3')
+                    _logger.info(hour_end + hour_start)
+                    total_hours = ((hour_end + hour_start) + 0.5)*-1
+
+            else:
+                if self.request_hour_to > 0: 
+                    _logger.info('prueba4')
+                    _logger.info(hour_end + hour_start)
+                    total_hours = hour_end + hour_start
+                else:
+                    _logger.info('prueba5')
+                    _logger.info(hour_end - hour_start)
+                    total_hours = ((hour_end - hour_start) + 0.5) *-1
+
+        self.number_of_hours_temp = total_hours
+  
 
 
 class calendar_event_type(models.Model):
