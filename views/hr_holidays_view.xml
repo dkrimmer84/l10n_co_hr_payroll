@@ -8,9 +8,11 @@
             <field name="priority">30</field>
             <field name="arch" type="xml">
             <data>
-               <xpath expr="//field[@name='name']" position="before">
-                    <field name="number_of_hours_temp" class="oe_inline" attrs="{'invisible' : [('request_unit_hours','=', False)]}"/> 
-               </xpath>
+              
+              <xpath expr="//field[@name='name']" position="before">
+                    <field name="number_of_hours_temp" class="oe_inline" attrs="{'invisible' : [('request_unit_hours','=', False)], 'readonly': [('state', 'not in', ('draft','confirm'))]}"/> 
+              </xpath>
+
             </data>
             </field>
         </record>
@@ -34,8 +36,11 @@
             <field name="priority">20</field>
             <field name="arch" type="xml">
               <data>
-                 <xpath expr="//field[@name='active']" position="after">
+                 <xpath expr="//field[@name='time_type']" position="after">
                       <field name="is_hollidays"/>         
+                 </xpath>
+                 <xpath expr="//field[@name='categ_id']" position="replace">
+                      <field name="categ_id" string="Categoría Ausencia"/>         
                  </xpath>
               </data>
             </field>

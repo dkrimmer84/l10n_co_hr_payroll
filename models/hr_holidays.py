@@ -22,7 +22,7 @@ class hr_holidays(models.Model):
     _inherit = 'hr.leave'
 
     number_of_hours_temp = fields.Float('Numero de Horas')
-
+    
     @api.multi
     @api.onchange('date_to', 'date_from')
     def onchange_date_from(self):
@@ -46,6 +46,7 @@ class hr_holidays(models.Model):
             self.number_of_days = diff_day
         else:
             self.number_of_days = 0
+         
 
     @api.multi
     @api.onchange('number_of_hours_temp')
@@ -58,7 +59,9 @@ class hr_holidays(models.Model):
                 self.request_hour_to = self.request_hour_from + hours
             else:
                 self.request_hour_to = self.request_hour_from - hours   
-            
+        
+        self.number_of_days_temp =  self.number_of_hours_temp 
+        self.number_of_hours_display = self.number_of_days_temp 
 
 
     @api.multi
@@ -70,28 +73,20 @@ class hr_holidays(models.Model):
             hour_start = self.request_hour_from
             hour_end = self.request_hour_to
             if hour_start > 0:
-                _logger.info('prueba1')
                 if self.request_hour_to > 0: 
-                    _logger.info('prueba2')
-                    _logger.info(hour_end - hour_start)
                     total_hours = hour_end - hour_start
                 else:
-                    _logger.info('prueba3')
-                    _logger.info(hour_end + hour_start)
                     total_hours = ((hour_end + hour_start) + 0.5)*-1
 
             else:
                 if self.request_hour_to > 0: 
-                    _logger.info('prueba4')
-                    _logger.info(hour_end + hour_start)
                     total_hours = hour_end + hour_start
                 else:
-                    _logger.info('prueba5')
-                    _logger.info(hour_end - hour_start)
                     total_hours = ((hour_end - hour_start) + 0.5) *-1
 
         self.number_of_hours_temp = total_hours
-  
+        self.number_of_days_temp = total_hours
+        self.number_of_hours_display = self.number_of_hours_temp 
 
 
 class calendar_event_type(models.Model):
